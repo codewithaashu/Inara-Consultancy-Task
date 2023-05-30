@@ -33,6 +33,7 @@ const Register = ({navigation}) => {
     try {
       const jsonValue = JSON.stringify(formData);
       await AsyncStorage.setItem('registerData', jsonValue);
+      alert('User is successfully registered');
     } catch (err) {
       console.log('Error :', err);
     }

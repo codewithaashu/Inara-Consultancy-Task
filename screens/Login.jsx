@@ -1,6 +1,6 @@
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {TextInput} from 'react-native-paper';
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const authUser = {email: 'test123@gmail.com', password: 'test123'};
@@ -9,24 +9,22 @@ const Login = ({navigation}) => {
 
   const getData = async () => {
     try {
-      const asyncData = await AsyncStorage.getItem('loginData');
-      console.log('Async data', asyncData);
+      const asyncData = await AsyncStorage.getItem('registerData');
+      return asyncData;
     } catch (err) {
       console.log('error :', err);
     }
   };
-  useEffect(() => {
-    getData();
-  }, []);
   const loginHandler = async () => {
     try {
+      const authUser = JSON.parse(await getData());
       if (
         formData.email === authUser.email &&
         formData.password === authUser.password
       ) {
         const jsonValue = JSON.stringify(formData);
         await AsyncStorage.setItem('loginData', jsonValue);
-        navigation.navigate('home');
+        navigation.navigate('home', {name: authUser.name});
       } else {
         Alert.alert('Invalid email or password');
       }
