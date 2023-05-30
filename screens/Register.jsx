@@ -5,18 +5,36 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const Register = ({navigation}) => {
   const [formData, setFormData] = useState({
     name: '',
-    dob:'',
+    dob: '',
     email: '',
     password: '',
   });
-  const registerHandler = () => {
-    const {name, email, password, avatar} = formData;
-    if (!name || !email || !password || !avatar) {
+  const getData = async () => {
+    try {
+      const asyncData = await AsyncStorage.getItem('registerData');
+      console.log('Async data', asyncData);
+    } catch (err) {
+      console.log('error :', err);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
+  const registerHandler = async () => {
+    const {name, dob, email, password} = formData;
+    if (!name || !dob || !email || !password) {
       return alert('Please enter all fields');
+    }
+    try {
+      const jsonValue = JSON.stringify(formData);
+      await AsyncStorage.setItem('registerData', jsonValue);
+    } catch (err) {
+      console.log('Error :', err);
     }
     setFormData({
       name: '',
@@ -26,48 +44,46 @@ const Register = ({navigation}) => {
     });
   };
 
-
   return (
-    <View
-      style={styles.mainContainer}>
-        <View style={styles.container}>
-          <View style={styles.formContainer}>
-            <TextInput
-              style={styles.textInputStyle}
-              placeholder="Name"
-              value={formData.name}
-              onChangeText={text => setFormData({...formData, name: text})}
-            />
-            <TextInput
-              style={styles.textInputStyle}
-              placeholder="Date of Birth in DD/MM/YYYY"
-              value={formData.dob}
-              onChangeText={text => setFormData({...formData, dob: text})}
-            />
-            <TextInput
-              style={styles.textInputStyle}
-              placeholder="Email"
-              value={formData.email}
-              onChangeText={text => setFormData({...formData, email: text})}
-            />
-            <TextInput
-              style={styles.textInputStyle}
-              placeholder="Password"
-              secureTextEntry
-              value={formData.password}
-              onChangeText={text => setFormData({...formData, password: text})}
-            />
-            <TouchableOpacity style={styles.btnStyle} onPress={registerHandler}>
-              <Text style={styles.buttonTextStyle}>Register</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.navigationContainer}>
-            <Text>Or</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('login')}>
-              <Text style={styles.navigationTextStyle}>Login</Text>
-            </TouchableOpacity>
-          </View>
+    <View style={styles.mainContainer}>
+      <View style={styles.container}>
+        <View style={styles.formContainer}>
+          <TextInput
+            style={styles.textInputStyle}
+            placeholder="Name"
+            value={formData.name}
+            onChangeText={text => setFormData({...formData, name: text})}
+          />
+          <TextInput
+            style={styles.textInputStyle}
+            placeholder="Date of Birth in DD/MM/YYYY"
+            value={formData.dob}
+            onChangeText={text => setFormData({...formData, dob: text})}
+          />
+          <TextInput
+            style={styles.textInputStyle}
+            placeholder="Email"
+            value={formData.email}
+            onChangeText={text => setFormData({...formData, email: text})}
+          />
+          <TextInput
+            style={styles.textInputStyle}
+            placeholder="Password"
+            secureTextEntry
+            value={formData.password}
+            onChangeText={text => setFormData({...formData, password: text})}
+          />
+          <TouchableOpacity style={styles.btnStyle} onPress={registerHandler}>
+            <Text style={styles.buttonTextStyle}>Register</Text>
+          </TouchableOpacity>
         </View>
+        <View style={styles.navigationContainer}>
+          <Text>Or</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('login')}>
+            <Text style={styles.navigationTextStyle}>Login</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
