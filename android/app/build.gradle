@@ -2,7 +2,7 @@ apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
 
 import com.android.build.OutputFile
-
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -89,6 +89,8 @@ def reactNativeArchitectures() {
 }
 
 android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
     ndkVersion rootProject.ext.ndkVersion
 
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -98,6 +100,8 @@ android {
         applicationId "com.first"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion 27
+        vectorDrawables.useSupportLibrary = true
         versionCode 1
         versionName "1.0"
     }

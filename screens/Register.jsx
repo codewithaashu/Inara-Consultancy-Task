@@ -7,6 +7,11 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Avatar, Dialog, Button} from 'react-native-paper';
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import ImagePicker from 'react-native-image-crop-picker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+
 const Register = ({navigation}) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -14,40 +19,86 @@ const Register = ({navigation}) => {
     email: '',
     password: '',
   });
-  const getData = async () => {
-    try {
-      const asyncData = await AsyncStorage.getItem('registerData');
-      console.log('Async data', asyncData);
-    } catch (err) {
-      console.log('error :', err);
-    }
+  const [visible, setVisible] = React.useState(false);
+  const [avatar, setAvatar] = React.useState(
+    'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+  );
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
+
+  const showDatePicker = () => setDatePickerVisibility(true);
+  const hideDatePicker = () => setDatePickerVisibility(false);
+  const handleConfirm = date => {
+    setFormData({...formData, dob: date.toString().substring(4, 16)});
+    hideDatePicker();
   };
-  useEffect(() => {
-    getData();
-  }, []);
+
   const registerHandler = async () => {
-    const {name, dob, email, password} = formData;
-    if (!name || !dob || !email || !password) {
-      return alert('Please enter all fields');
-    }
     try {
-      const jsonValue = JSON.stringify(formData);
+      const {name, dob, email, password} = formData;
+      if (!name || !dob || !email || !password) {
+        return alert('Please enter all fields');
+      }
+      const jsonValue = JSON.stringify({
+        ...formData,
+        avatar: avatar,
+      });
       await AsyncStorage.setItem('registerData', jsonValue);
       alert('User is successfully registered');
+      setFormData({
+        name: '',
+        dob: '',
+        email: '',
+        password: '',
+      });
+      navigation.navigate('login');
     } catch (err) {
       console.log('Error :', err);
     }
-    setFormData({
-      name: '',
-      dob: '',
-      email: '',
-      password: '',
+  };
+
+  const pickPictureCamera = () => {
+    ImagePicker.openCamera({
+      width: 200,
+      height: 200,
+      cropping: true,
+      cropperCircleOverlay: true,
+    }).then(image => {
+      setAvatar(image.path);
     });
+    hideDialog();
+  };
+  const pickPictureGallery = () => {
+    ImagePicker.openPicker({
+      width: 200,
+      height: 200,
+      cropping: true,
+      cropperCircleOverlay: true,
+    }).then(image => {
+      setAvatar(image.path);
+    });
+    hideDialog();
   };
 
   return (
     <View style={styles.mainContainer}>
       <View style={styles.container}>
+        <View style={styles.imgMainContainer}>
+          <View style={styles.imgContainer}>
+            <Avatar.Image
+              source={{
+                uri: avatar,
+              }}
+              size={120}
+              color="red"
+            />
+            <TouchableOpacity style={styles.iconBtnStyle} onPress={showDialog}>
+              <AntDesignIcon name="edit" size={22} color="white" />
+            </TouchableOpacity>
+          </View>
+        </View>
         <View style={styles.formContainer}>
           <TextInput
             style={styles.textInputStyle}
@@ -57,9 +108,9 @@ const Register = ({navigation}) => {
           />
           <TextInput
             style={styles.textInputStyle}
-            placeholder="Date of Birth in DD/MM/YYYY"
+            placeholder="Date of Birth"
             value={formData.dob}
-            onChangeText={text => setFormData({...formData, dob: text})}
+            onPressIn={showDatePicker}
           />
           <TextInput
             style={styles.textInputStyle}
@@ -85,6 +136,37 @@ const Register = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
+      <Dialog
+        visible={visible}
+        onDismiss={hideDialog}
+        style={{
+          backgroundColor: '#343434',
+          opacity: 0.8,
+          paddingVertical: 25,
+        }}>
+        <Dialog.Content style={{gap: 25}}>
+          <TouchableOpacity
+            style={[styles.btnStyle, {backgroundColor: 'black'}]}
+            onPress={pickPictureCamera}>
+            <Text style={[styles.buttonTextStyle, {fontWeight: 'bold'}]}>
+              Take from Camera
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.btnStyle, {backgroundColor: 'black'}]}
+            onPress={pickPictureGallery}>
+            <Text style={[styles.buttonTextStyle, {fontWeight: 'bold'}]}>
+              Choose from Gallery
+            </Text>
+          </TouchableOpacity>
+        </Dialog.Content>
+      </Dialog>
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
     </View>
   );
 };
@@ -92,16 +174,32 @@ const Register = ({navigation}) => {
 export default Register;
 
 const styles = StyleSheet.create({
-    mainContainer:{
-        flex:1,
-        justifyContent:"center",
-        alignItems:"center"
-    },
+  mainContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     alignSelf: 'center',
     width: '100%',
     paddingHorizontal: 20,
     gap: 20,
+  },
+  imgMainContainer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  imgContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  iconBtnStyle: {
+    backgroundColor: 'tomato',
+    padding: 5,
+    borderRadius: 50,
+    position: 'absolute',
+    left: 80,
   },
   formContainer: {
     width: '80%',
