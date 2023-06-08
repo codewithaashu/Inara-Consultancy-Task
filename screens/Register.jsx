@@ -1,4 +1,5 @@
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -59,27 +60,35 @@ const Register = ({navigation}) => {
     }
   };
 
-  const pickPictureCamera = () => {
-    ImagePicker.openCamera({
-      width: 200,
-      height: 200,
-      cropping: true,
-      cropperCircleOverlay: true,
-    }).then(image => {
-      setAvatar(image.path);
-    });
-    hideDialog();
+  const pickPictureCamera = async () => {
+    try {
+      hideDialog();
+      const res = await ImagePicker.openCamera({
+        width: 200,
+        height: 200,
+        cropping: true,
+        cropperCircleOverlay: true,
+      });
+      setAvatar(res.path);
+    } catch (err) {
+      console.log('Error:', err);
+      Alert.alert('User cancelled image selection');
+    }
   };
-  const pickPictureGallery = () => {
-    ImagePicker.openPicker({
-      width: 200,
-      height: 200,
-      cropping: true,
-      cropperCircleOverlay: true,
-    }).then(image => {
-      setAvatar(image.path);
-    });
-    hideDialog();
+  const pickPictureGallery = async () => {
+    try {
+      hideDialog();
+      const res = await ImagePicker.openPicker({
+        width: 200,
+        height: 200,
+        cropping: true,
+        cropperCircleOverlay: true,
+      });
+      setAvatar(res.path);
+    } catch (err) {
+      console.log('Error:', err);
+      Alert.alert('User cancelled image selection');
+    }
   };
 
   return (

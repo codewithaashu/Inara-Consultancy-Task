@@ -9,7 +9,6 @@ const Login = ({navigation}) => {
   const getData = async () => {
     try {
       const asyncData = await AsyncStorage.getItem('registerData');
-      // console.log('async data', asyncData);
       return asyncData;
     } catch (err) {
       console.log('error :', err);
